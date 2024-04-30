@@ -1,4 +1,4 @@
-name: Azure Static Web Apps CI/CD
+name: Azure Web App CI/CD
 
 on:
   push:
@@ -19,28 +19,16 @@ jobs:
         with:
           submodules: true
           lfs: false
-      - name: Build And Deploy
-        id: builddeploy
-        uses: Azure/static-web-apps-deploy@v1
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
-          action: "upload"
-          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
-          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-          app_location: "/" # App source code path
-          api_location: "" # Api source code path - optional
-          output_location: "dist" # Built app content directory - optional
-          ###### End of Repository/Build Configurations ######
-
-  close_pull_request_job:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
-    runs-on: ubuntu-latest
-    name: Close Pull Request Job
-    steps:
-      - name: Close Pull Request
-        id: closepullrequest
-        uses: Azure/static-web-apps-deploy@v1
+          node-version: '11'  # Assurez-vous d'utiliser la version de Node.js qui correspond à votre application
+      - run: npm install
+      - run: npm run build  # Adaptez cette commande selon votre script de build spécifique
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE }}
-          action: "close"
+          app_name: 'VueAzuredev'  # Remplacez par le nom de votre application web Azure
+          slot_name: 'production'  # Optionnel: spécifiez si vous utilisez des slots
+          publish_profile: ${{ secrets.AZURE }}  # Assurez-vous de configurer cette secret dans vos secrets GitHub
+          package: '.'  # Spécifiez le chemin d'accès au dossier de sortie de votre build si nécessaire
